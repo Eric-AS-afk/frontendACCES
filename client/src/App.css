@@ -1,0 +1,85 @@
+#root {
+  max-width: none; /* Elimina la restricción de ancho máximo */
+  margin: 0; /* Elimina el margen */
+  padding: 0; /* Elimina el padding */
+  text-align: left; /* Cambia la alineación del texto al inicio */
+  display: flex; /* Asegura que el contenido se alinee con flexbox */
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+  flex-direction: column; /* Asegura que los elementos se apilen verticalmente */
+}
+
+.logo {
+  height: 6em; /* Define la altura del logo */
+  padding: 1.5em; /* Agrega espacio interno alrededor del logo */
+  will-change: filter; /* Optimiza el rendimiento para cambios en el filtro */
+  transition: filter 300ms; /* Aplica una transición suave al filtro */
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa); /* Agrega un efecto de sombra al pasar el cursor */
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa); /* Cambia la sombra del logo React al pasar el cursor */
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg); /* Inicia sin rotación */
+  }
+  to {
+    transform: rotate(360deg); /* Gira 360 grados */
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear; /* Aplica una animación de giro continuo al logo */
+  }
+}
+
+.card {
+  padding: 2em; /* Agrega espacio interno al contenedor de la tarjeta */
+}
+
+.read-the-docs {
+  color: #888; /* Define el color del texto */
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif; /* Fuente básica */
+  background-color: #ffffff; /* Fondo blanco */
+  color: #000; /* Texto negro */
+}
+
+.App {
+  text-align: center; /* Alinea el contenido al centro */
+}
+
+main {
+  padding-top: 80px; /* Espacio superior para evitar superposición con la barra de navegación */
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Asegura que el contenedor ocupe toda la altura de la pantalla */
+}
+
+.main-content {
+  flex: 1; /* Permite que el contenido principal ocupe el espacio restante */
+  padding: 20px;
+}
+
+.content-container {
+  max-width: 100%; /* Permite que el contenido ocupe todo el ancho */
+  margin: 0; /* Elimina el margen */
+  padding: 20px; /* Agrega un padding estándar */
+  text-align: left; /* Alinea el texto al inicio */
+  display: flex; /* Usa flexbox para centrar el contenido */
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+  flex-direction: column; /* Asegura que los elementos se apilen verticalmente */
+}

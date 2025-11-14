@@ -1,0 +1,80 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; /* Define la fuente principal */
+  line-height: 1.5; /* Establece la altura de línea del texto */
+  font-weight: 400; /* Define el grosor del texto */
+
+  color-scheme: light dark; /* Soporte para esquemas de color claro y oscuro */
+  color: rgba(0, 0, 0, 0.87); /* Establece el color del texto */
+  background-color: #ffffff; /* Define el color de fondo */
+
+  font-synthesis: none; /* Desactiva la síntesis de fuentes */
+  text-rendering: optimizeLegibility; /* Mejora la legibilidad del texto */
+  -webkit-font-smoothing: antialiased; /* Suaviza el texto en navegadores WebKit */
+  -moz-osx-font-smoothing: grayscale; /* Suaviza el texto en macOS */
+}
+
+body {
+  margin: 0; /* Elimina el margen predeterminado del cuerpo */
+  width: 100%; /* Asegura que el cuerpo ocupe todo el ancho */
+  height: 100%; /* Asegura que el cuerpo ocupe toda la altura */
+  display: flex; /* Usa flexbox para alinear los elementos */
+  flex-direction: column; /* Asegura que los elementos se apilen verticalmente */
+  background-color: #ffffff; /* Define el color de fondo */
+}
+
+#root {
+  flex: 1; /* Permite que el contenido principal ocupe el espacio restante */
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
+  height: 100%; /* Asegura que el contenedor ocupe toda la altura */
+  display: flex; /* Usa flexbox para alinear el contenido */
+  flex-direction: column; /* Asegura que los elementos se apilen verticalmente */
+}
+
+a {
+  font-weight: 500; /* Define el grosor del texto de los enlaces */
+  color: #646cff; /* Establece el color del texto de los enlaces */
+  text-decoration: inherit; /* Hereda la decoración del texto */
+}
+
+a:hover {
+  color: #535bf2; /* Cambia el color del texto al pasar el cursor */
+}
+
+h1 {
+  font-size: 3.2em; /* Define el tamaño del texto del encabezado */
+  line-height: 1.1; /* Establece la altura de línea del encabezado */
+}
+
+button {
+  border-radius: 8px; /* Redondea las esquinas del botón */
+  border: 1px solid transparent; /* Define un borde transparente */
+  padding: 0.6em 1.2em; /* Agrega espacio interno al botón */
+  font-size: 1em; /* Define el tamaño del texto del botón */
+  font-weight: 500; /* Define el grosor del texto del botón */
+  font-family: inherit; /* Hereda la fuente del contenedor */
+  background-color: #1a1a1a; /* Establece el color de fondo del botón */
+  cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+  transition: border-color 0.25s; /* Aplica una transición suave al borde */
+}
+
+button:hover {
+  border-color: #646cff; /* Cambia el color del borde al pasar el cursor */
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color; /* Agrega un contorno al enfocar el botón */
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #000000; /* Cambia el color del texto en modo claro */
+    background-color: #ffffff; /* Cambia el color de fondo en modo claro */
+  }
+  a:hover {
+    color: #747bff; /* Cambia el color del texto de los enlaces al pasar el cursor en modo claro */
+  }
+  button {
+    background-color: #f9f9f9; /* Cambia el color de fondo del botón en modo claro */
+  }
+}
