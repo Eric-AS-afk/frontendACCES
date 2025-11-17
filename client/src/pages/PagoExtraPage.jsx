@@ -18,6 +18,7 @@ function PagoExtraPage() {
   const [montoPagar, setMontoPagar] = useState("");
   const [numeroBoleta, setNumeroBoleta] = useState("");
   const [evidencia, setEvidencia] = useState(null);
+  const [boletaExiste, setBoletaExiste] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -69,6 +70,10 @@ function PagoExtraPage() {
     e.preventDefault();
     const usuarioId = localStorage.getItem("id");
     const requiereFechaEvento = (tipoSeleccionado == 1 || tipoSeleccionado == 2);
+    if (boletaExiste) {
+      alert('este numero de boleta ya fue registrado');
+      return;
+    }
     if (requiereFechaEvento && fechaOcupada) {
       alert("La fecha seleccionada ya tiene un evento, selecciona otra fecha.");
       return;
@@ -78,6 +83,23 @@ function PagoExtraPage() {
       return;
     }
     setShowConfirm(true);
+  };
+
+  // Verifica en backend si el numero de boleta ya existe
+  const checkBoleta = async (valor) => {
+    if (!valor) {
+      setBoletaExiste(false);
+      return;
+    }
+    try {
+      const res = await axios.get(`/api/extra/check-codigo?codigo=${valor}`);
+      const exists = res.data?.exists || false;
+      setBoletaExiste(exists);
+      if (exists) alert('este numero de boleta ya fue registrado');
+    } catch (err) {
+      console.error('Error al verificar boleta:', err);
+      setBoletaExiste(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -173,7 +195,12 @@ function PagoExtraPage() {
                 )}
                 <div className="mb-3">
                   <label className="form-label">Número de Boleta</label>
-                  <input type="number" className="form-control" value={numeroBoleta} onChange={e => setNumeroBoleta(e.target.value)} required placeholder="Ingresa el número de boleta" />
+                  <input type="number" className="form-control" value={numeroBoleta} onChange={e => { setNumeroBoleta(e.target.value); if (boletaExiste) setBoletaExiste(false); }} onBlur={e => checkBoleta(e.target.value)} required placeholder="Ingresa el número de boleta" />
+                  {boletaExiste && (
+                    <div className="form-text text-danger" style={{ fontWeight: 600 }}>
+                      Este número de boleta ya fue registrado
+                    </div>
+                  )}
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Monto a Pagar</label>
@@ -213,7 +240,7 @@ function PagoExtraPage() {
               <button
                 type="submit"
                 className="btn btn-primary btn-lg px-5"
-                disabled={submitting || ((tipoSeleccionado == 1 || tipoSeleccionado == 2) && fechaOcupada)}
+                disabled={submitting || boletaExiste || ((tipoSeleccionado == 1 || tipoSeleccionado == 2) && fechaOcupada)}
               >
                 {submitting ? "Procesando..." : "Registrar Pago"}
               </button>

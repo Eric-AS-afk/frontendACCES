@@ -10,6 +10,7 @@ import HistorialGeneralPage from "./pages/HistorialGeneralPage";
 import RetiroPage from "./pages/RetiroPage";
 import HistorialRetiroPage from "./pages/HistorialRetiroPage";
 import { AuthProvider, useAuth } from "./context/auth.jsx";
+import ServerStatus from './components/ServerStatus';
 
 function PrivateRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -25,6 +26,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ServerStatus />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />

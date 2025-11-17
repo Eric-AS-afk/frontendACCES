@@ -5,6 +5,10 @@ import HeaderBar from "../components/HeaderBar";
 import VersionFooter from "../components/VersionFooter";
 import PageLayout from "../components/PageLayout";
 import axios from "axios";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 // Formatea una fecha ISO (YYYY-MM-DD) a DD/MM/YYYY
 const formatDMY = (iso) => {
@@ -23,6 +27,10 @@ function HomePage() {
   const [ultimosPagos, setUltimosPagos] = useState([]);
   const [ultimosRetiros, setUltimosRetiros] = useState([]);
   const [proveedores, setProveedores] = useState([]);
+  const [usuariosAll, setUsuariosAll] = useState([]);
+  const [pagosAll, setPagosAll] = useState([]);
+  const [paidStats, setPaidStats] = useState({ paid: 0, unpaid: 0 });
+  const [paymentsByDate, setPaymentsByDate] = useState([]);
 
   const usuarioId = useMemo(() => localStorage.getItem("id"), []);
   const hoy = useMemo(() => new Date(), []);
@@ -83,6 +91,82 @@ function HomePage() {
     };
     run();
   }, [esAdmin]);
+
+  // Cargar usuarios y todos los pagos para métricas (run for all users)
+  useEffect(() => {
+    const loadMetrics = async () => {
+      try {
+        const [uRes, pagosRes] = await Promise.all([
+          axios.get('/api/usuarios'),
+          axios.get('/api/pagos/todos-con-usuario')
+        ]);
+        const users = Array.isArray(uRes.data) ? uRes.data : [];
+        const pagos = Array.isArray(pagosRes.data) ? pagosRes.data : [];
+        setUsuariosAll(users);
+        setPagosAll(pagos);
+
+        // Calcular pagos del mes actual por usuario
+        const usersSet = new Set();
+        pagos.forEach(p => {
+          const pm = String(p.PAG_MES).padStart(2,'0');
+          const py = String(p.PAG_AÑO);
+          if (pm === mesActual && py === anioActual) {
+            usersSet.add(String(p.US_USUARIO));
+          }
+        });
+        const paid = usersSet.size;
+        const unpaid = Math.max(0, users.length - paid);
+        setPaidStats({ paid, unpaid });
+
+        // Agrupar pagos por fecha en el mes
+        const map = new Map();
+        pagos.forEach(p => {
+          const pm = String(p.PAG_MES).padStart(2,'0');
+          const py = String(p.PAG_AÑO);
+          if (pm === mesActual && py === anioActual) {
+            const fecha = p.PAG_fecha ? String(p.PAG_fecha).split('T')[0] : '';
+            if (!fecha) return;
+            map.set(fecha, (map.get(fecha) || 0) + 1);
+          }
+        });
+        const arr = Array.from(map.entries()).sort((a,b)=> a[0].localeCompare(b[0])).map(([date,count])=>({ date, count }));
+        setPaymentsByDate(arr);
+      } catch (err) {
+        setUsuariosAll([]);
+        setPagosAll([]);
+        setPaidStats({ paid: 0, unpaid: 0 });
+        setPaymentsByDate([]);
+      }
+    };
+    loadMetrics();
+  }, [mesActual, anioActual]);
+
+  // Chart data for react-chartjs-2
+  const barData = {
+    labels: ['Al día', 'Pendientes'],
+    datasets: [
+      {
+        label: 'Usuarios',
+        data: [paidStats.paid, paidStats.unpaid],
+        backgroundColor: ['#198754', '#dc3545']
+      }
+    ]
+  };
+  const barOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+  const lineData = {
+    labels: paymentsByDate.map(p => p.date.split('-').pop()),
+    datasets: [
+      {
+        label: 'Cantidad de pagos',
+        data: paymentsByDate.map(p => p.count),
+        borderColor: '#0d6efd',
+        backgroundColor: 'rgba(13,110,253,0.15)',
+        fill: true,
+        tension: 0.3
+      }
+    ]
+  };
+  const lineOptions = { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, precision: 0 } } };
 
   const proveedorMap = useMemo(() => {
     const map = new Map();
@@ -173,6 +257,37 @@ function HomePage() {
                   <button className="btn btn-outline-secondary" onClick={() => navigate('/historial')}>
                     Ver más
                   </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Charts - visible to all users (small, side-by-side) */}
+          <div className="col-12 col-md-10 col-lg-10 mx-auto">
+            <div className="row g-3">
+              <div className="col-12 col-md-6">
+                <div className="card shadow">
+                  <div className="card-body">
+                    <h5 className="card-title">Usuarios que están al día</h5>
+                    <div style={{ height: 200 }}>
+                      <Bar data={barData} options={barOptions} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <div className="card shadow">
+                  <div className="card-body">
+                    <h5 className="card-title">Fechas de pagos en el mes</h5>
+                    {paymentsByDate.length === 0 ? (
+                      <p className="text-muted mb-0">Sin datos de pagos este mes</p>
+                    ) : (
+                      <div style={{ height: 200 }}>
+                        <Line data={lineData} options={lineOptions} />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

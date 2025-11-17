@@ -14,6 +14,7 @@ function PagoMensualPage() {
   
   // Datos del formulario
   const [numeroBoleta, setNumeroBoleta] = useState("");
+  const [boletaExiste, setBoletaExiste] = useState(false);
   const [tipoPago, setTipoPago] = useState("");
   const [evidencia, setEvidencia] = useState(null);
   const [tiposPago, setTiposPago] = useState([]);
@@ -73,6 +74,10 @@ function PagoMensualPage() {
   // Abrir modal de confirmación después de validar
   const handleOpenConfirm = (e) => {
     e.preventDefault();
+    if (boletaExiste) {
+      alert('este numero de boleta ya fue registrado');
+      return;
+    }
     if (!numeroBoleta || !tipoPago || !evidencia) {
       alert("Por favor completa todos los campos");
       return;
@@ -82,6 +87,23 @@ function PagoMensualPage() {
       return;
     }
     setShowConfirm(true);
+  };
+
+  // Verifica en backend si el numero de boleta ya existe
+  const checkBoleta = async (valor) => {
+    if (!valor) {
+      setBoletaExiste(false);
+      return;
+    }
+    try {
+      const res = await axios.get(`/api/pagos/check-codigo?codigo=${valor}`);
+      const exists = res.data?.exists || false;
+      setBoletaExiste(exists);
+      if (exists) alert('este numero de boleta ya fue registrado');
+    } catch (err) {
+      console.error('Error al verificar boleta:', err);
+      setBoletaExiste(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -143,18 +165,9 @@ function PagoMensualPage() {
               <label className="form-label">Mes</label>
               <select className="form-select" value={mes} onChange={(e) => setMes(e.target.value)}>
                 <option value="">Selecciona</option>
-                <option value="01">Enero</option>
-                <option value="02">Febrero</option>
-                <option value="03">Marzo</option>
-                <option value="04">Abril</option>
-                <option value="05">Mayo</option>
-                <option value="06">Junio</option>
-                <option value="07">Julio</option>
-                <option value="08">Agosto</option>
-                <option value="09">Septiembre</option>
-                <option value="10">Octubre</option>
                 <option value="11">Noviembre</option>
                 <option value="12">Diciembre</option>
+                <option value="01">Enero</option>
               </select>
             </div>
             <div className="col-md-3">
@@ -206,10 +219,16 @@ function PagoMensualPage() {
                         type="number" 
                         className="form-control" 
                         value={numeroBoleta}
-                        onChange={(e) => setNumeroBoleta(e.target.value)}
+                        onChange={(e) => { setNumeroBoleta(e.target.value); if (boletaExiste) setBoletaExiste(false); }}
+                        onBlur={(e) => checkBoleta(e.target.value)}
                         required
                         placeholder="Ingresa el número de boleta"
                       />
+                      {boletaExiste && (
+                        <div className="form-text text-danger" style={{ fontWeight: 600 }}>
+                          Este número de boleta ya fue registrado
+                        </div>
+                      )}
                     </div>
 
                     <div className="mb-3">
@@ -270,7 +289,7 @@ function PagoMensualPage() {
                   <button 
                     type="submit" 
                     className="btn btn-primary btn-lg px-5"
-                    disabled={submitting}
+                    disabled={submitting || boletaExiste}
                   >
                     {submitting ? "Procesando..." : "Agregar Pago"}
                   </button>

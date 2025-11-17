@@ -23,7 +23,7 @@ function LoginPage() {
     setError("");
     setIsSubmitting(true);
     try {
-      const res = await axios.post("http://localhost:3000/api/usuarios/login", {
+      const res = await axios.post("/api/usuarios/login", {
         US_NOMBRE: username,
         US_CONTRASEÑA: password,
       });
@@ -91,7 +91,7 @@ function LoginPage() {
         <div className="row align-items-center w-100 g-2">
           <div className="col-12 col-md-6 text-center text-md-start mb-4 mb-md-0 login-copy">
             <h1 className="display-4 m-0">ACCES</h1>
-            <em>Administración de Control y Cuentas Electrónicas de Siena</em>
+            <em>Administración del Control y Cuentas Electrónicas de Siena</em>
           </div>
           <div className="col-12 col-md-6 d-flex justify-content-center justify-content-md-start">
             <div className="card p-4 login-card" style={{ minWidth: 350 }}>

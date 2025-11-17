@@ -1,0 +1,2 @@
+ID Movimiento,Referencia,Usuario,Moneda,Tipo de movimiento,Cuenta bancaria,Descripcion,Fecha movimiento,Valor
+MV000001,REF001,US1001,MO000001,TM0001,CB0001,Descripción de ejemplo,2023-01-01,1000

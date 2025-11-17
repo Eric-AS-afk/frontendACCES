@@ -80,13 +80,11 @@ function HistorialGeneralPage() {
   }, []);
 
   const pagosFiltrados = useMemo(() => {
-    const usuarioTexto = (usuarioId || "").toString().trim().toLowerCase();
+    const boletaTexto = (usuarioId || "").toString().trim().toLowerCase();
     const casaTexto = (casaNumero || "").toString().trim().toLowerCase();
     return (pagos || []).filter(p => {
-      // Filtro usuario por texto: coincide por nombre o contiene el ID
-      const nombre = (p.US_NOMBRE || '').toLowerCase();
-      const idStr = String(p.US_USUARIO || '');
-      const okUsuario = usuarioTexto ? (nombre.includes(usuarioTexto) || idStr.includes(usuarioTexto)) : true;
+      // Filtro por número de boleta (PAG_CODIGO)
+      const okBoleta = boletaTexto ? String(p.PAG_CODIGO || '').toLowerCase().includes(boletaTexto) : true;
 
       // Filtro de mes y año
       const okMes = mes ? String(p.PAG_MES).padStart(2,'0') === mes : true;
@@ -101,21 +99,20 @@ function HistorialGeneralPage() {
       const okFechaInicio = fechaInicio ? (fechaPago >= fechaInicio) : true;
       const okFechaFin = fechaFin ? (fechaPago <= fechaFin) : true;
 
-      return okUsuario && okMes && okAnio && okCasa && okFechaInicio && okFechaFin;
+      return okBoleta && okMes && okAnio && okCasa && okFechaInicio && okFechaFin;
     });
   }, [pagos, usuarioId, mes, anio, casaNumero, fechaInicio, fechaFin]);
 
   const pagosExtraFiltrados = useMemo(() => {
-    const usuarioTexto = (usuarioId || "").toString().trim().toLowerCase();
+    const boletaTexto = (usuarioId || "").toString().trim().toLowerCase();
     return (pagosExtra || []).filter(e => {
-      const nombre = (e.US_NOMBRE || '').toLowerCase();
-      const idStr = String(e.US_USUARIO || '');
-      const okUsuario = usuarioTexto ? (nombre.includes(usuarioTexto) || idStr.includes(usuarioTexto)) : true;
+      // Filtro por número de boleta (EXT_CODIGO)
+      const okBoleta = boletaTexto ? String(e.EXT_CODIGO || '').toLowerCase().includes(boletaTexto) : true;
       // Filtro por fecha
       const fechaPago = e.EXT_FECHA ? String(e.EXT_FECHA).split('T')[0] : '';
       const okFechaInicio = fechaInicio ? (fechaPago >= fechaInicio) : true;
       const okFechaFin = fechaFin ? (fechaPago <= fechaFin) : true;
-      return okUsuario && okFechaInicio && okFechaFin;
+      return okBoleta && okFechaInicio && okFechaFin;
     });
   }, [pagosExtra, usuarioId, fechaInicio, fechaFin]);
 
@@ -136,12 +133,23 @@ function HistorialGeneralPage() {
   const tipoId = (localStorage.getItem('tipo_id') || '').toString();
   const esAdmin = tipoId === '1' || tipoId === '2';
 
+  // Buscar número de casa a partir del ID de usuario
+  const getCasaNumero = (usuarioId) => {
+    if (!usuarioId) return 'N/A';
+    const user = (usuarios || []).find(u => String(u.US_USUARIO) === String(usuarioId));
+    if (!user) return 'N/A';
+    const casaId = user.CAS_CASA;
+    if (!casaId) return 'N/A';
+    const casa = (casas || []).find(c => String(c.CAS_CASA) === String(casaId));
+    return casa?.CAS_NUMERO || 'N/A';
+  };
+
   const exportarExcel = () => {
     const fechaHoy = new Date().toISOString().split('T')[0];
     const wb = XLSX.utils.book_new();
 
     // Hoja: Pagos Mensuales
-    const headersM = ['Usuario','ID Usuario','Casa','Mes','Año','Fecha Pago','Total Pagado','Evidencia'];
+    const headersM = ['Boleta','ID Usuario','Casa','Mes','Año','Fecha Pago','Total Pagado','Evidencia'];
     const aoaM = [
       ['Historial General - Pagos Mensuales'],
       [`Fecha de exportación: ${fechaHoy}`],
@@ -150,7 +158,7 @@ function HistorialGeneralPage() {
         const fechaStr = p.PAG_fecha ? String(p.PAG_fecha).split('T')[0] : '';
         const fecha = fechaStr ? new Date(fechaStr) : '';
         return [
-          p.US_NOMBRE || '',
+          p.PAG_CODIGO || '',
           p.US_USUARIO || '',
           p.CAS_NUMERO || 'N/A',
           mesesEs[String(p.PAG_MES).padStart(2,'0')] || p.PAG_MES,
@@ -196,7 +204,7 @@ function HistorialGeneralPage() {
     XLSX.utils.book_append_sheet(wb, wsMensual, 'Pagos Mensuales');
 
     // Hoja: Pagos Extras
-    const headersE = ['Usuario','ID Usuario','Tipo Extra','Descripción','Fecha','Fecha del Evento','Total Pagado','Evidencia'];
+    const headersE = ['Boleta','ID Usuario', 'Casa','Tipo Extra','Descripción','Fecha','Fecha del Evento','Total Pagado','Evidencia'];
     const aoaE = [
       ['Historial General - Pagos Extras'],
       [`Fecha de exportación: ${fechaHoy}`],
@@ -207,8 +215,9 @@ function HistorialGeneralPage() {
         const fechaEventoStr = e.EXT_FECHA_EVENTO ? String(e.EXT_FECHA_EVENTO).split('T')[0] : '';
         const fechaEvento = fechaEventoStr ? formatDMY(fechaEventoStr) : '';
         return [
-          e.US_NOMBRE || '',
+          e.EXT_CODIGO || '',
           e.US_USUARIO || '',
+          getCasaNumero(e.US_USUARIO) || 'N/A',
           e.TIE_NOMBRE || e.TIE_TIPO || '',
           e.TIE_DESCRIPCION || '',
           fecha,
@@ -288,13 +297,13 @@ function HistorialGeneralPage() {
           {/* Filtros */}
           <div className="row g-3 mb-3">
             <div className="col-md-3">
-              <label className="form-label">Usuario</label>
+              <label className="form-label">Boleta</label>
               <input
                 type="text"
                 className="form-control"
                 value={usuarioId}
                 onChange={(e) => setUsuarioId(e.target.value)}
-                placeholder="Buscar por nombre o ID"
+                placeholder="Buscar por boleta"
               />
             </div>
             <div className="col-md-2">
@@ -375,7 +384,7 @@ function HistorialGeneralPage() {
                       <table className="table table-bordered align-middle">
                         <thead>
                           <tr>
-                            <th>Usuario</th>
+                            <th>Número de Boleta</th>
                             <th>Casa</th>
                             <th>Mes</th>
                             <th>Año</th>
@@ -387,7 +396,7 @@ function HistorialGeneralPage() {
                         <tbody>
                           {pagosFiltrados.map((p) => (
                             <tr key={`g-${p.PAG_PAGO}`}>
-                              <td>{p.US_NOMBRE} (ID: {p.US_USUARIO})</td>
+                              <td>{p.PAG_CODIGO} </td>
                               <td>{p.CAS_NUMERO || 'N/A'}</td>
                               <td>{mesesEs[String(p.PAG_MES).padStart(2,'0')] || p.PAG_MES}</td>
                               <td>{p.PAG_AÑO}</td>
@@ -421,7 +430,8 @@ function HistorialGeneralPage() {
                       <table className="table table-bordered align-middle">
                         <thead>
                           <tr>
-                            <th>Usuario</th>
+                            <th>Número de Boleta</th>
+                            <th>Casa</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th>Fecha</th>
@@ -432,7 +442,8 @@ function HistorialGeneralPage() {
                         <tbody>
                           {pagosExtraFiltrados.map((e) => (
                             <tr key={`e-${e.EXT_EXTRA}`}>
-                              <td>{e.US_NOMBRE} (ID: {e.US_USUARIO})</td>
+                              <td>{e.EXT_CODIGO} </td>
+                              <td>{getCasaNumero(e.US_USUARIO) || 'N/A'}</td>
                               <td>{e.TIE_NOMBRE || e.TIE_TIPO}</td>
                               <td>{e.TIE_DESCRIPCION || ''}</td>
                               <td>{e.EXT_FECHA ? String(e.EXT_FECHA).split('T')[0] : ''}</td>

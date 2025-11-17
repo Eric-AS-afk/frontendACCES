@@ -103,6 +103,7 @@ function HistorialPage() {
                       <table className="table table-striped align-middle">
                         <thead>
                           <tr>
+                            <th>Boleta</th>
                             <th>Mes</th>
                             <th>Año</th>
                             <th>Total Pagado</th>
@@ -112,6 +113,7 @@ function HistorialPage() {
                         <tbody>
                           {pagos.map((p) => (
                             <tr key={p.PAG_PAGO}>
+                              <td>{p.PAG_CODIGO || ''}</td>
                               <td>{mesesEs[String(p.PAG_MES).padStart(2,'0')] || p.PAG_MES}</td>
                               <td>{p.PAG_AÑO}</td>
                               <td>Q {Number(p.PAG_TOTAL || 0).toFixed(2)}</td>
@@ -143,6 +145,7 @@ function HistorialPage() {
                       <table className="table table-striped align-middle">
                         <thead>
                           <tr>
+                            <th>Boleta</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th>Fecha</th>
@@ -154,6 +157,7 @@ function HistorialPage() {
                         <tbody>
                           {pagosExtra.map((e) => (
                             <tr key={e.EXT_EXTRA}>
+                              <td>{e.EXT_CODIGO || ''}</td>
                               <td>{e.TIE_NOMBRE || e.TIE_TIPO || ''}</td>
                               <td>{e.TIE_DESCRIPCION || ''}</td>
                               <td>{formatDMY(e.EXT_FECHA)}</td>
