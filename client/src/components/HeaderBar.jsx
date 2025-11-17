@@ -216,6 +216,9 @@ function HeaderBar() {
     ] : [])
   ];
 
+  // En móvil queremos mostrar solo Inicio; el resto irá en "Más"
+  const mobilePrimary = [ navItems[0] ].filter(Boolean);
+
   return (
     <>
       <style>{`
@@ -245,12 +248,17 @@ function HeaderBar() {
         .navbar {
           border-bottom: none !important;
         }
+        /* Hide label text on small screens (phones) */
+        .hide-sm { display: inline !important; }
+        @media (max-width: 767.98px) {
+          .hide-sm { display: none !important; }
+        }
       `}</style>
       <nav className="navbar navbar-expand-lg" style={{ backgroundColor: "#25857D", borderBottom: "none" }}>
         <div className="container-fluid">
           <div className="navbar-brand d-flex align-items-center gap-2" style={{ color: "#D4CDAD", backgroundColor: "#BD3737", borderRadius: "0.5rem", padding: "0.25rem 0.75rem", fontFamily: "Georgia, 'Times New Roman', serif" }}>
             <img src={icono} alt="Icono Siena" style={{ width: "32px", height: "32px", objectFit: "cover", borderRadius: "0.25rem" }} />
-            <span>Siena</span>
+            <span className="hide-sm" style={{ marginLeft: 4 }}>Siena</span>
           </div>
           
           {/* Desktop: todas las opciones en fila */}
@@ -271,7 +279,7 @@ function HeaderBar() {
 
           {/* Mobile: primeras 2 opciones + dropdown "Más" */}
           <div className="d-flex d-lg-none mx-auto gap-1">
-            {navItems.slice(0, 2).map((item) => (
+            {mobilePrimary.map((item) => (
               <Link
                 key={item.path}
                 className={`nav-link nav-link-custom${location.pathname === item.path ? " active" : ""}`}
@@ -281,7 +289,7 @@ function HeaderBar() {
                 {item.label}
               </Link>
             ))}
-            {navItems.length > 2 && (
+            {navItems.length > mobilePrimary.length && (
               <div className="dropdown">
                 <button
                   className="btn btn-link nav-link dropdown-toggle-custom dropdown-toggle"
@@ -294,7 +302,7 @@ function HeaderBar() {
                   Más
                 </button>
                 <ul className={`dropdown-menu${dropdownOpen ? ' show' : ''}`} aria-labelledby="dropdownMas">
-                  {navItems.slice(2).map((item) => (
+                  {navItems.filter(item => !mobilePrimary.some(mp => mp.path === item.path)).map((item) => (
                     <li key={item.path}>
                       <Link
                         className={`dropdown-item${location.pathname === item.path ? " active" : ""}`}
@@ -313,9 +321,10 @@ function HeaderBar() {
           <div className="d-flex align-items-center gap-2">
             <button
               className="btn btn-outline-light btn-sm me-2"
-              style={{ borderRadius: "0.5rem", backgroundColor: "#ffffffff",borderColor: "#1976d2", color: "#1976d2", fontWeight: 500 }}
+              style={{ borderRadius: "0.5rem", backgroundColor: "#ffffffff",borderColor: "#1976d2", color: "#1976d2", fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
               onClick={handleOpen}
               title="Perfil"
+              aria-label="Perfil"
               onMouseEnter={e => {
                 e.currentTarget.style.backgroundColor = '#1975d2';
                 e.currentTarget.style.color = '#fff';
@@ -325,13 +334,15 @@ function HeaderBar() {
                 e.currentTarget.style.color = '#1975d2';
               }}
             >
-              Perfil <AccountCircleIcon style={{ color: "#1976d2" }} />
+              <span className="hide-sm">Perfil</span>
+              <AccountCircleIcon style={{ color: "#1976d2" }} />
             </button>
             <button
               className="btn btn-outline-danger btn-sm logout-btn"
               style={{ borderRadius: "0.5rem", borderColor: "#dc3545", backgroundColor: "#ffffffff", color: "#dc3545", fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
               onClick={handleLogout}
               title="Cerrar sesión"
+              aria-label="Cerrar sesión"
               onMouseEnter={e => {
                 e.currentTarget.style.backgroundColor = '#dc3545';
                 e.currentTarget.style.color = '#fff';
@@ -341,7 +352,8 @@ function HeaderBar() {
                 e.currentTarget.style.color = '#dc3545';
               }}
             >
-              Cerrar Sesión <LogoutIcon className="logout-icon" style={{ color: "inherit" }} />
+              <span className="hide-sm">Cerrar Sesión</span>
+              <LogoutIcon className="logout-icon" style={{ color: "inherit" }} />
             </button>
           </div>
         </div>
