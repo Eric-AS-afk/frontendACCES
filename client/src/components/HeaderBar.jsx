@@ -209,6 +209,7 @@ function HeaderBar() {
     { path: "/", label: "Inicio" },
     { path: "/pago-mensual", label: "Pago mensual" },
     { path: "/pago-extra", label: "Pago Extra" },
+    { path: "/pago-multa", label: "Multas" },
     { path: "/historial", label: "Historial" },
     ...(isAdminOrControl ? [
       { path: "/retiro", label: "Desembolsos" },

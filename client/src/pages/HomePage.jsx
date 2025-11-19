@@ -182,8 +182,8 @@ function HomePage() {
       <div className="container mt-4">
         {/* Encabezado centrado */}
         <div className="text-center mb-4">
-          <h1 className="fw-bold">¡Bienvenido/a al ACCES!</h1>
-          <h5 className="text-muted">Administración de Control y Cuentas Electrónicas de Siena</h5>
+          <h1 className="fw-bold">¡Bienvenido a ACCES!</h1>
+          <h5 className="text-muted">Administración del Control y Cuentas Electrónicas de Siena</h5>
           <div className="mt-3" style={{ minHeight: 24 }}>
             {/* Espacio para una frase inspiradora */}
             <em className="text-secondary">"La organización es la clave para una comunidad en armonía"</em>

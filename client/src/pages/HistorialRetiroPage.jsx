@@ -31,7 +31,7 @@ function HistorialRetiroPage() {
   const [fechaFin, setFechaFin] = useState("");
 
   const tipoId = (localStorage.getItem('tipo_id') || '').toString();
-  const esAdmin = tipoId === '1' || tipoId === '2';
+  const esAdmin = tipoId === '1' || tipoId === '2' || tipoId === '4';
 
   useEffect(() => {
     const load = async () => {

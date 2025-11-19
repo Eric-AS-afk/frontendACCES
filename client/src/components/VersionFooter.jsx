@@ -13,7 +13,7 @@ function VersionFooter() {
         userSelect: "none",
       }}
     >
-      Version: Alpha 1.01
+      Version: Alpha 2.01
     </div>
   );
 }

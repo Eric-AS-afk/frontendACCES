@@ -28,6 +28,8 @@ function RetiroPage() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const usuarioId = localStorage.getItem("id");
+  const tipoId = (localStorage.getItem('tipo_id') || '').toString();
+  const esAdmin = tipoId === '1' || tipoId === '2';
 
   const saldo = useMemo(() => {
     const s = (Number(totalPagos) || 0) + (Number(totalExtras) || 0) - (Number(totalRetiros) || 0);
@@ -112,6 +114,17 @@ function RetiroPage() {
       setShowConfirm(false);
     }
   };
+
+  if (!esAdmin) {
+    return (
+      <PageLayout>
+        <HeaderBar />
+        <div className="container mt-5">
+          <div className="alert alert-danger">No autorizado</div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>

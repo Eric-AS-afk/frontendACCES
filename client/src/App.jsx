@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import PagoMensualPage from "./pages/PagoMensualPage";
 import PagoExtraPage from "./pages/PagoExtraPage";
+import PagoMultaPage from "./pages/PagoMultaPage.jsx";
 import HistorialPage from "./pages/HistorialPage";
 import HistorialGeneralPage from "./pages/HistorialGeneralPage";
 import RetiroPage from "./pages/RetiroPage";
@@ -32,6 +33,7 @@ function App() {
           <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
           <Route path="/pago-mensual" element={<PrivateRoute><PagoMensualPage /></PrivateRoute>} />
           <Route path="/pago-extra" element={<PrivateRoute><PagoExtraPage /></PrivateRoute>} />
+          <Route path="/pago-multa" element={<PrivateRoute><PagoMultaPage /></PrivateRoute>} />
           <Route path="/historial" element={<PrivateRoute><HistorialPage /></PrivateRoute>} />
           <Route path="/historial-general" element={<PrivateRoute><HistorialGeneralPage /></PrivateRoute>} />
           <Route path="/retiro" element={<PrivateRoute><RoleRoute allowed={["1", "2"]}><RetiroPage /></RoleRoute></PrivateRoute>} />

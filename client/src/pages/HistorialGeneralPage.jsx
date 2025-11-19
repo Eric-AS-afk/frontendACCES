@@ -4,6 +4,7 @@ import axios from "axios";
 import HeaderBar from "../components/HeaderBar";
 import VersionFooter from "../components/VersionFooter";
 import PageLayout from "../components/PageLayout";
+import ImageModal from '../components/ImageModal';
 // Helper para DD/MM/YYYY
 const formatDMY = (iso) => {
   if (!iso) return '';
@@ -132,6 +133,8 @@ function HistorialGeneralPage() {
 
   const tipoId = (localStorage.getItem('tipo_id') || '').toString();
   const esAdmin = tipoId === '1' || tipoId === '2';
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalFile, setModalFile] = useState('');
 
   // Buscar número de casa a partir del ID de usuario
   const getCasaNumero = (usuarioId) => {
@@ -404,9 +407,9 @@ function HistorialGeneralPage() {
                               <td>Q {Number(p.PAG_TOTAL || 0).toFixed(2)}</td>
                               <td>
                                 {p.PAG_EVIDENCIA ? (
-                                  <a href={`/uploads/evidencias/${p.PAG_EVIDENCIA}`} target="_blank" rel="noreferrer" title={p.PAG_EVIDENCIA}>
+                                  <button className="btn btn-link p-0" onClick={() => { setModalFile(p.PAG_EVIDENCIA); setModalOpen(true); }} title={p.PAG_EVIDENCIA}>
                                     Ver evidencia
-                                  </a>
+                                  </button>
                                 ) : (
                                   <span className="text-muted">Sin evidencia</span>
                                 )}
@@ -450,9 +453,9 @@ function HistorialGeneralPage() {
                               <td>Q{Number(e.EXT_TOTAL || 0).toFixed(2)}</td>
                               <td>
                                 {e.EXT_EVIDENCIA ? (
-                                  <a href={`/uploads/evidencias/${e.EXT_EVIDENCIA}`} target="_blank" rel="noreferrer" title={e.EXT_EVIDENCIA}>
+                                  <button className="btn btn-link p-0" onClick={() => { setModalFile(e.EXT_EVIDENCIA); setModalOpen(true); }} title={e.EXT_EVIDENCIA}>
                                     Ver evidencia
-                                  </a>
+                                  </button>
                                 ) : (
                                   <span className="text-muted">Sin evidencia</span>
                                 )}
@@ -469,7 +472,8 @@ function HistorialGeneralPage() {
           )}
         </div>
       </div>
-      <VersionFooter />
+        <ImageModal filename={modalFile} show={modalOpen} onClose={() => setModalOpen(false)} />
+        <VersionFooter />
     </PageLayout>
   );
 }
