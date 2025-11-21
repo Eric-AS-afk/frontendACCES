@@ -15,6 +15,10 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotIdentifier, setForgotIdentifier] = useState('');
+  const [forgotStatus, setForgotStatus] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -55,6 +59,27 @@ function LoginPage() {
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
+  const sendRecovery = async (identifier) => {
+    setForgotStatus('');
+    setForgotLoading(true);
+    try {
+      await axios.post('/api/usuarios/forgot-password', { identifier });
+      setForgotStatus('Correo enviado existosamente, revisa tu bandeja de entrada');
+      // keep modal open and display message in the same window
+    } catch (err) {
+      const support = 'soporteacces@sienacces.site';
+      const subject = encodeURIComponent('Solicitud de recuperación de contraseña');
+      const body = encodeURIComponent(
+        `Hola soporte,\n\nSolicito ayuda para recuperar la contraseña del usuario con identificador: ${identifier}\nPor favor, enviar instrucciones al correo registrado o restablecer la contraseña.\n\nGracias.`
+      );
+      setForgotStatus('No se pudo enviar automáticamente. Redirigiendo al cliente de correo...');
+      // Open mail client
+      window.location.href = `mailto:${support}?subject=${subject}&body=${body}`;
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
     <div className="login-bg">
       <style>{`
@@ -91,7 +116,7 @@ function LoginPage() {
         <div className="row align-items-center w-100 g-2">
           <div className="col-12 col-md-6 text-center text-md-start mb-4 mb-md-0 login-copy">
             <h1 className="display-4 m-0">ACCES</h1>
-            <em>Administración del Control y Cuentas Electrónicas de Siena</em>
+            <em>Administración de Control y Cuentas Electrónicas de Siena</em>
           </div>
           <div className="col-12 col-md-6 d-flex justify-content-center justify-content-md-start">
             <div className="card p-4 login-card" style={{ minWidth: 350 }}>
@@ -129,15 +154,36 @@ function LoginPage() {
                   </div>
                 </div>
                 {error && <div className="alert alert-danger">{error}</div>}
-                <div className="text-end">
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    style={{ backgroundColor: '#942222', borderColor: '#942222' }}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Entrando...' : 'Entrar'}
-                  </button>
+                <div className="d-flex justify-content-between align-items-center mt-2">
+                  <div>
+                    <button
+                      type="button"
+                      className="btn btn-link p-0"
+                      onClick={() => {
+                        // If username field is filled, try sending recovery immediately using it
+                        if (username && username.trim() !== '') {
+                          sendRecovery(username.trim());
+                        } else {
+                          setForgotIdentifier('');
+                          setForgotStatus('');
+                          setShowForgot(true);
+                        }
+                      }}
+                      style={{ color: '#7fd61bff', fontWeight: 600 }}
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      style={{ backgroundColor: '#942222', borderColor: '#942222' }}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Entrando...' : 'Entrar'}
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
@@ -145,8 +191,52 @@ function LoginPage() {
         </div>
       </div>
       <VersionFooter />
+      {showForgot && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 1050 }}>
+          <div className="modal-backdrop show" onClick={() => setShowForgot(false)} />
+          <div className="card p-4" style={{ width: 420, zIndex: 1060 }}>
+            <h5 className="mb-3">Recuperar contraseña</h5>
+            <p className="small">Ingresa tu usuario o correo registrado. </p>
+            <div className="mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Usuario o correo"
+                value={forgotIdentifier}
+                onChange={(e) => setForgotIdentifier(e.target.value)}
+              />
+            </div>
+            {forgotStatus && <div className="alert alert-info">{forgotStatus}</div>}
+              <div className="d-flex justify-content-end">
+                {forgotStatus && (
+                  <button
+                    className="btn btn-success me-2"
+                    onClick={() => {
+                      setShowForgot(false);
+                      setForgotStatus('');
+                      setForgotIdentifier('');
+                    }}
+                  >
+                    Volver al Inicio de Sesión
+                  </button>
+                )}
+                <button className="btn btn-secondary me-2" onClick={() => setShowForgot(false)}>Cerrar</button>
+                <button
+                  className="btn btn-primary"
+                  onClick={async () => {
+                    if (!forgotIdentifier || forgotIdentifier.trim() === '') return;
+                    await sendRecovery(forgotIdentifier.trim());
+                  }}
+                  disabled={forgotLoading || !forgotIdentifier}
+                >
+                  {forgotLoading ? 'Enviando...' : 'Enviar correo'}
+                </button>
+              </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+  }
 
 export default LoginPage;

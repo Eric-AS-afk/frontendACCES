@@ -10,6 +10,7 @@ import HistorialPage from "./pages/HistorialPage";
 import HistorialGeneralPage from "./pages/HistorialGeneralPage";
 import RetiroPage from "./pages/RetiroPage";
 import HistorialRetiroPage from "./pages/HistorialRetiroPage";
+import ResetPassword from "./pages/ResetPassword.jsx";
 import { AuthProvider, useAuth } from "./context/auth.jsx";
 import ServerStatus from './components/ServerStatus';
 
@@ -36,6 +37,7 @@ function App() {
           <Route path="/pago-multa" element={<PrivateRoute><PagoMultaPage /></PrivateRoute>} />
           <Route path="/historial" element={<PrivateRoute><HistorialPage /></PrivateRoute>} />
           <Route path="/historial-general" element={<PrivateRoute><HistorialGeneralPage /></PrivateRoute>} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/retiro" element={<PrivateRoute><RoleRoute allowed={["1", "2"]}><RetiroPage /></RoleRoute></PrivateRoute>} />
           <Route path="/historial-retiro" element={<PrivateRoute><RoleRoute allowed={["1", "2"]}><HistorialRetiroPage /></RoleRoute></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/login" replace />} />
