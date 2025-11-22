@@ -23,6 +23,7 @@ function RetiroPage() {
   const [proveedorSel, setProveedorSel] = useState("");
   const [tipoPagoSeleccionado, setTipoPagoSeleccionado] = useState("");
   const [monto, setMonto] = useState("");
+  const [evidenciaFile, setEvidenciaFile] = useState(null);
   const [fecha, setFecha] = useState(() => new Date().toISOString().split("T")[0]);
   const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -94,18 +95,30 @@ function RetiroPage() {
     const montoNum = Number(monto);
     setSubmitting(true);
     try {
-      await axios.post('/api/retiro', {
+      const createRes = await axios.post('/api/retiro', {
         US_USUARIO: parseInt(usuarioId),
         PRO_PROVEEDOR: parseInt(proveedorSel),
         RET_FECHA: fecha,
         RET_TOTAL: montoNum,
         TIP_TIPO: parseInt(tipoPagoSeleccionado),
       });
+      const newId = createRes.data?.RET_RETIRO;
+      // If file selected, upload it to /api/retiro/evidencia/:id
+      if (newId && evidenciaFile) {
+        const fd = new FormData();
+        fd.append('evidencia', evidenciaFile);
+        try {
+          await axios.post(`/api/retiro/evidencia/${newId}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        } catch (upErr) {
+          console.error('Error subiendo evidencia:', upErr);
+        }
+      }
       // Actualizar saldo (recalcular retiros)
       await refetchRetiros();
       setMonto("");
       setProveedorSel("");
       setTipoPagoSeleccionado("");
+      setEvidenciaFile(null);
     } catch (err) {
       console.error('Error al crear retiro', err);
       alert("Ocurrió un error al crear el retiro");
@@ -116,14 +129,7 @@ function RetiroPage() {
   };
 
   if (!esAdmin) {
-    return (
-      <PageLayout>
-        <HeaderBar />
-        <div className="container mt-5">
-          <div className="alert alert-danger">No autorizado</div>
-        </div>
-      </PageLayout>
-    );
+    return null;
   }
 
   return (
@@ -193,6 +199,11 @@ function RetiroPage() {
                     <label className="form-label">Monto</label>
                     <input type="number" min="0" step="0.01" className="form-control" value={monto} onChange={e => setMonto(e.target.value)} required placeholder="Ingresa el monto del retiro" />
                     <small className="text-muted">Disponible: {fmtQ(saldo)}</small>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Evidencia (imagen)</label>
+                    <input type="file" accept="image/*" className="form-control" onChange={e => setEvidenciaFile(e.target.files[0] || null)} />
+                    <small className="text-muted">Sube una imagen del comprobante.</small>
                   </div>
                   <div className="text-end">
                     <button disabled={submitting} type="submit" className="btn btn-primary">

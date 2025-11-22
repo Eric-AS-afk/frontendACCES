@@ -80,7 +80,13 @@ function PagoMultaPage() {
   const fetchUsersAndMultas = async () => {
     try {
       const [uRes, mRes] = await Promise.all([axios.get('/api/usuarios'), axios.get('/api/multa')]);
-      setUsersList(uRes.data || []);
+      // Exclude users of tipo 1 from the list used to create multas
+      const allUsers = uRes.data || [];
+      const filtered = (Array.isArray(allUsers) ? allUsers : []).filter(u => {
+        const tipo = String(u?.TIP_TIPO_USUARIO ?? u?.TIP_TIPO ?? '');
+        return tipo !== '1';
+      });
+      setUsersList(filtered);
       setMultasList(mRes.data || []);
     } catch (err) {
       console.error('Error fetching users or multas:', err);
@@ -200,7 +206,7 @@ function PagoMultaPage() {
       <HeaderBar />
       <div className="container mt-5">
         <div className="card shadow p-4 mb-4">
-          <h4>Consulta tus multas</h4>
+          <h4>Consulta tus Multas</h4>
           <p>Presiona el botón para verificar si tienes multas registradas a tu casa.</p>
           <div>
             <button className="btn btn-primary me-2" onClick={consultarMultas} disabled={loading}>
@@ -208,13 +214,13 @@ function PagoMultaPage() {
             </button>
             {adminAllowed && (
               <>
-                <button className="btn btn-success me-2" onClick={openAddModal}>Añadir multa</button>
+                <button className="btn btn-success me-2" onClick={openAddModal}>Añadir Multa</button>
                 
               </>
             )}
             {juntaAllowed && (
               <>
-                <button className="btn btn-outline-secondary" onClick={openViewModal}>Visualizar todas las multas</button>
+                <button className="btn btn-outline-secondary" onClick={openViewModal}>Visualizar Todas las Multas</button>
               </>
             )}
           </div>
@@ -223,7 +229,7 @@ function PagoMultaPage() {
         {consultado && !loading && (
           <>
             {pendingMultas.length === 0 ? (
-              <div className="alert alert-success">No tienes multas</div>
+              <div className="alert alert-success">No Tienes Multas</div>
             ) : (
               <div className="card shadow p-4">
                 <h3 className="mb-4">Registrar Pago de Multa</h3>
@@ -231,7 +237,7 @@ function PagoMultaPage() {
                   <div className="row">
                     <div className="col-md-8">
                       <div className="mb-3">
-                        <label className="form-label">Selecciona multa pendiente</label>
+                        <label className="form-label">Selecciona Multa Pendiente</label>
                         <select className="form-select" value={selectedPam?.pam_pago_multa || ''} onChange={(e) => {
                           const id = e.target.value;
                           const found = pendingMultas.find(p => String(p.pam_pago_multa) === String(id));
@@ -253,7 +259,7 @@ function PagoMultaPage() {
                       <div className="mb-3">
                         <label className="form-label">Tipo de Pago</label>
                         <select className="form-select" value={tipoPago} onChange={e => setTipoPago(e.target.value)} required>
-                          <option value="">Selecciona un tipo</option>
+                          <option value="">Selecciona un Tipo</option>
                           {tiposPago.map(t => (
                             <option key={t.TIP_TIPO} value={t.TIP_TIPO}>{t.TIP_NOMBRE}</option>
                           ))}
@@ -327,7 +333,7 @@ function PagoMultaPage() {
 
                   <div className="col-md-6">
                     <div className="mb-3">
-                      <label className="form-label">Información del usuario seleccionado</label>
+                      <label className="form-label">Información del Usuario Seleccionado</label>
                       <div style={{ padding: '0.5rem', background: '#f8f9fa', borderRadius: 4 }}>
                         {addUserId ? (
                           (() => {
@@ -340,12 +346,12 @@ function PagoMultaPage() {
                               </div>
                             ) : <div>No encontrado</div>;
                           })()
-                        ) : <div>Selecciona un usuario</div>}
+                        ) : <div>Selecciona un Usuario</div>}
                       </div>
                     </div>
                     
                     <div className="mb-3">
-                      <label className="form-label">Información de la multa seleccionada</label>
+                      <label className="form-label">Información de la Multa Seleccionada</label>
                       <div style={{ padding: '0.5rem', background: '#f8f9fa', borderRadius: 4 }}>
                         {addMultaId ? (
                           (() => {
@@ -356,9 +362,9 @@ function PagoMultaPage() {
                                 <div><strong>Nombre:</strong> {m.MUL_NOMBRE}</div>
                                 <div><strong>Descripción:</strong> {m.MUL_DESCRIPCION || '-'}</div>
                               </div>
-                            ) : <div>No encontrada</div>;
+                            ) : <div>No Encontrada</div>;
                           })()
-                        ) : <div>Selecciona una multa</div>}
+                        ) : <div>Selecciona una Multa</div>}
                       </div>
                     </div>
 
@@ -387,7 +393,7 @@ function PagoMultaPage() {
             <div className="p-3">
               <div className="mb-3 d-flex gap-2 align-items-center">
                 <div>
-                  <label className="form-label mb-1">Filtrar por multa</label>
+                  <label className="form-label mb-1">Filtrar por Multa</label>
                   <select className="form-select" value={viewFilterMultaId} onChange={e => setViewFilterMultaId(e.target.value)}>
                     <option value="">Todas</option>
                     {multasList.map(m => (
@@ -396,7 +402,7 @@ function PagoMultaPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="form-label mb-1">Filtrar por estado</label>
+                  <label className="form-label mb-1">Filtrar por Estado</label>
                   <select className="form-select" value={viewFilterEstado} onChange={e => setViewFilterEstado(e.target.value)}>
                     <option value="">Todos</option>
                     <option value="pendiente">Pendiente</option>

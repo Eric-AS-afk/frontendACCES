@@ -207,7 +207,7 @@ function HeaderBar() {
 
   const navItems = [
     { path: "/", label: "Inicio" },
-    { path: "/pago-mensual", label: "Pago mensual" },
+    { path: "/pago-mensual", label: "Pago Mensual" },
     { path: "/pago-extra", label: "Pago Extra" },
     { path: "/pago-multa", label: "Multas" },
     { path: "/historial", label: "Historial" },
@@ -440,7 +440,7 @@ function HeaderBar() {
                         {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
                       </button>
                     </div>
-                    <small className="text-muted">Requerido para actualizar tu perfil</small>
+                    <small className="text-muted">Requerido para Actualizar tu Perfil</small>
                   </div>
                 )}
 

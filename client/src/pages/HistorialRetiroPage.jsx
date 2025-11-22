@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import HeaderBar from "../components/HeaderBar";
 import VersionFooter from "../components/VersionFooter";
 import PageLayout from "../components/PageLayout";
+import ImageModal from '../components/ImageModal';
 
 // Formatea una fecha ISO (YYYY-MM-DD o con tiempo) a DD/MM/YYYY para mostrar en UI/Excel (texto)
 const formatDMY = (dateLike) => {
@@ -32,6 +33,9 @@ function HistorialRetiroPage() {
 
   const tipoId = (localStorage.getItem('tipo_id') || '').toString();
   const esAdmin = tipoId === '1' || tipoId === '2' || tipoId === '4';
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalFile, setModalFile] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -269,10 +273,11 @@ function HistorialRetiroPage() {
                   <thead>
                     <tr>
                       <th>Usuario</th>
-                      <th>Proveedor</th>
-                      <th>Tipo de Pago</th>
-                      <th>Fecha</th>
-                      <th>Monto</th>
+                        <th>Proveedor</th>
+                        <th>Tipo de Pago</th>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Evidencia</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -282,11 +287,20 @@ function HistorialRetiroPage() {
                       const tipoNombre = r.TIP_NOMBRE || tipoPagoMap.get(r.TIP_TIPO) || '-';
                       return (
                         <tr key={`ret-${r.RET_RETIRO}`}>
-                          <td>{r.US_NOMBRE} (ID: {r.US_USUARIO})</td>
+                          <td>{r.US_NOMBRE}</td>
                           <td>{labelProv}</td>
                           <td>{tipoNombre}</td>
                           <td>{formatDMY(r.RET_FECHA)}</td>
-                          <td>Q {Number(r.RET_TOTAL || 0).toFixed(2)}</td>
+                              <td>Q {Number(r.RET_TOTAL || 0).toFixed(2)}</td>
+                              <td>
+                                {r.RET_EVIDENCIA ? (
+                                  <button className="btn btn-link p-0" onClick={() => { setModalFile(r.RET_EVIDENCIA); setModalOpen(true); }} title={r.RET_EVIDENCIA}>
+                                    <span className="bi bi-file-earmark-image" aria-label="Ver evidencia" /> Ver evidencia
+                                  </button>
+                                ) : (
+                                  <span className="text-muted">Sin evidencia</span>
+                                )}
+                              </td>
                         </tr>
                       );
                     })}
@@ -297,6 +311,7 @@ function HistorialRetiroPage() {
           )}
         </div>
       </div>
+        <ImageModal filename={modalFile} show={modalOpen} onClose={() => setModalOpen(false)} />
       <VersionFooter />
     </PageLayout>
   );

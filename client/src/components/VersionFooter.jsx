@@ -13,7 +13,7 @@ function VersionFooter() {
         userSelect: "none",
       }}
     >
-      Version: Alpha 2.01
+      Version: Release 1.0 - Noviembre 2025
     </div>
   );
 }

@@ -96,27 +96,31 @@ function HomePage() {
   useEffect(() => {
     const loadMetrics = async () => {
       try {
-        const [uRes, pagosRes] = await Promise.all([
-          axios.get('/api/usuarios'),
-          axios.get('/api/pagos/todos-con-usuario')
-        ]);
-        const users = Array.isArray(uRes.data) ? uRes.data : [];
-        const pagos = Array.isArray(pagosRes.data) ? pagosRes.data : [];
-        setUsuariosAll(users);
-        setPagosAll(pagos);
+          const [uRes, pagosRes] = await Promise.all([
+            axios.get('/api/usuarios'),
+            axios.get('/api/pagos/todos-con-usuario')
+          ]);
+          const users = Array.isArray(uRes.data) ? uRes.data : [];
+          const pagos = Array.isArray(pagosRes.data) ? pagosRes.data : [];
+          setUsuariosAll(users);
+          setPagosAll(pagos);
 
-        // Calcular pagos del mes actual por usuario
-        const usersSet = new Set();
-        pagos.forEach(p => {
-          const pm = String(p.PAG_MES).padStart(2,'0');
-          const py = String(p.PAG_AÑO);
-          if (pm === mesActual && py === anioActual) {
-            usersSet.add(String(p.US_USUARIO));
-          }
-        });
-        const paid = usersSet.size;
-        const unpaid = Math.max(0, users.length - paid);
-        setPaidStats({ paid, unpaid });
+          // Exclude users of tipo '1' from paid/pending statistics
+          const visibleUsers = (users || []).filter(u => String(u?.TIP_TIPO_USUARIO ?? u?.TIP_TIPO ?? '') !== '1');
+
+          // Calcular pagos del mes actual por usuario (solo considerando usuarios visibles)
+          const usersSet = new Set();
+          pagos.forEach(p => {
+            const pm = String(p.PAG_MES).padStart(2,'0');
+            const py = String(p.PAG_AÑO);
+            if (pm === mesActual && py === anioActual) {
+              usersSet.add(String(p.US_USUARIO));
+            }
+          });
+          // Count how many of the visible users are in the usersSet
+          const paid = visibleUsers.reduce((acc, u) => acc + (usersSet.has(String(u.US_USUARIO)) ? 1 : 0), 0);
+          const unpaid = Math.max(0, visibleUsers.length - paid);
+          setPaidStats({ paid, unpaid });
 
         // Agrupar pagos por fecha en el mes
         const map = new Map();
@@ -224,7 +228,7 @@ function HomePage() {
           <div className="col-12 col-md-10 col-lg-8 mx-auto">
             <div className="card shadow">
               <div className="card-body">
-                <h4 className="card-title mb-3">Tus últimos pagos</h4>
+                <h4 className="card-title mb-3">Tus Últimos Pagos</h4>
                 {statusLoading ? (
                   <p className="text-muted mb-0">Cargando...</p>
                 ) : ultimosPagos.length === 0 ? (
@@ -268,7 +272,7 @@ function HomePage() {
               <div className="col-12 col-md-6">
                 <div className="card shadow">
                   <div className="card-body">
-                    <h5 className="card-title">Usuarios que están al día</h5>
+                    <h5 className="card-title">Estado del Pago de las 75 Casas</h5>
                     <div style={{ height: 200 }}>
                       <Bar data={barData} options={barOptions} />
                     </div>
@@ -279,9 +283,9 @@ function HomePage() {
               <div className="col-12 col-md-6">
                 <div className="card shadow">
                   <div className="card-body">
-                    <h5 className="card-title">Fechas de pagos en el mes</h5>
+                    <h5 className="card-title">Fechas de Pagos Realizados</h5>
                     {paymentsByDate.length === 0 ? (
-                      <p className="text-muted mb-0">Sin datos de pagos este mes</p>
+                      <p className="text-muted mb-0">Sin Datos de Pagos este Mes</p>
                     ) : (
                       <div style={{ height: 200 }}>
                         <Line data={lineData} options={lineOptions} />
@@ -305,7 +309,7 @@ function HomePage() {
                     </button>
                   </div>
                   {ultimosRetiros.length === 0 ? (
-                    <p className="text-muted mb-0">Sin desembolsos</p>
+                    <p className="text-muted mb-0">Sin Desembolsos</p>
                   ) : (
                     <div className="table-responsive">
                       <table className="table table-sm align-middle">

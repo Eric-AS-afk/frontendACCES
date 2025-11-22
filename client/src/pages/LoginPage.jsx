@@ -160,15 +160,11 @@ function LoginPage() {
                       type="button"
                       className="btn btn-link p-0"
                       onClick={() => {
-                        // If username field is filled, try sending recovery immediately using it
-                        if (username && username.trim() !== '') {
-                          sendRecovery(username.trim());
-                        } else {
-                          setForgotIdentifier('');
+                          // Always open the forgot-password modal; prefill identifier from username if present
+                          setForgotIdentifier(username && username.trim() !== '' ? username.trim() : '');
                           setForgotStatus('');
                           setShowForgot(true);
-                        }
-                      }}
+                        }}
                       style={{ color: '#7fd61bff', fontWeight: 600 }}
                     >
                       ¿Olvidaste tu contraseña?
@@ -195,7 +191,7 @@ function LoginPage() {
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 1050 }}>
           <div className="modal-backdrop show" onClick={() => setShowForgot(false)} />
           <div className="card p-4" style={{ width: 420, zIndex: 1060 }}>
-            <h5 className="mb-3">Recuperar contraseña</h5>
+            <h5 className="mb-3">Recuperar Contraseña</h5>
             <p className="small">Ingresa tu usuario o correo registrado. </p>
             <div className="mb-3">
               <input
