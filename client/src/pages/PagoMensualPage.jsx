@@ -165,7 +165,6 @@ function PagoMensualPage() {
               <label className="form-label">Mes</label>
               <select className="form-select" value={mes} onChange={(e) => setMes(e.target.value)}>
                 <option value="">Selecciona</option>
-                <option value="11">Noviembre</option>
                 <option value="12">Diciembre</option>
                 <option value="01">Enero</option>
               </select>
